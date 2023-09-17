@@ -1,0 +1,62 @@
+version: "3.7"
+services:
+
+  app:
+    build:
+      args:
+        user: root
+        uid: 1000
+      context: ./
+      dockerfile: ./docker/app/Dockerfile
+    image: travellist
+    container_name: test-app
+    restart: unless-stopped
+    working_dir: /var/www/
+    volumes:
+      - ./:/var/www
+    networks:
+      - test
+  db:
+    image: mysql:8.0
+    container_name: test-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_RANDOM_ROOT_PASSWORD: 'yes'
+    ports:
+      - '3311:3306'
+    volumes:
+      - ./docker/mysql:/docker-entrypoint-initdb.d
+    networks:
+      - test
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: test-pma
+    links:
+      - db
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      PMA_ARBITRARY: 1
+    restart: always
+    ports:
+      - "8090:80"
+    networks:
+      - test
+  nginx:
+    image: nginx:1.20-alpine
+    container_name: test-nginx
+    restart: unless-stopped
+    ports:
+      - "8002:80"
+    volumes:
+      - ./:/var/www
+      - ./docker/nginx:/etc/nginx/conf.d
+    networks:
+      - test
+networks:
+    test:
+        driver: bridge
