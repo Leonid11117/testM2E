@@ -13,7 +13,7 @@
 Оновленння даних та запис виконує метод updateMultiple
 App\Services\UploadFil\UploadFileService
 
-## Фильтрация
+## Фільтрація
 
 Фільтрація по даному - ship_to_name, customer_email, status, виконана в App\Http\Controllers\UploadFile\UploadFileController
 
